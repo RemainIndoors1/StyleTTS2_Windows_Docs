@@ -16,7 +16,7 @@ Requirements:
 - You'll need to install [Python](https://www.python.org/downloads/windows/) 3.7 or newer (I'm using 3.10.11)
 - You'll need to install [espeak-ng](https://github.com/espeak-ng/espeak-ng/releases) to act as a phonemizer. (regular espeak should work too, but this method uses espeak-ng)
 	- what's a phonemizer? basically, it takes text and converts it to base units that StyleTTS2 will know how to pronounce. For example, "tough" sounds like "tuff", "bough" sounds like "bow" and "bought" sounds like "bot". They're all spelled similarly, but TTS doesn't inherently know there's a difference.
-- You'll need a considerable amount of clean voice data cut up into 3-10 second wav files with a 24kHz sample rate. (we'll cover how to convert wav files to 24kHz later)
+- You'll need a considerable amount of clean voice data cut up into 2-10 second wav files with a 24kHz sample rate. (we'll cover how to convert wav files to 24kHz later)
 - You'll also need text Transcripts for all of your wav files.
 - You'll need to install the [CUDA toolkit](https://developer.nvidia.com/cuda-11-8-0-download-archive) to allow your python code to access the full power of your GPU.
 - You might also need [ffmpeg](https://www.gyan.dev/ffmpeg/builds/) to convert your wav files to the correct sample rate. This depends on what format they're currently in.

@@ -174,9 +174,11 @@ Here are some important config settings to know:
 	- **batch_percentage**: defaults to 0.5 percent of your file batches to use for SLM adversarial training. You can lower this to probably 0.2 if you need to lower overall memory usage.
 - For everything else, I would recommend leaving the default values unless you know what changing it will do. changing some values will break training, and changing some values will prevent inference from working later without additional steps, so proceed with caution.
 
-### Running Training
+## Running Training
 
-At this point, as long as everything up until this point has gone well, you should be good to start training. If you run into any errors unrelated to CUDA, this is when you can try just running `pip install packagename` to fix it. If there are any CUDA errors, you might need to google how to fix it if I didn't cover it above.
+### Round 1
+
+As long as everything up until this point has gone well, you should be good to start training. If you run into any errors unrelated to CUDA, this is when you can try just running `pip install packagename` to fix it. If there are any CUDA errors, you might need to google how to fix it if I didn't cover it above.
 
 Also, since newer versions of pytorch use a "weights_only_unpickler" by default, when you try to run training, you might run into an error about weights_only being set to True/False. Your first instinct might be to try changing versions until you get something that works, but that's going to lead you into dependency hell trying to get the magic mix of versions that makes everything happy. Fortunately, there's an easy yet hacky solution to this problem.
 
@@ -189,12 +191,20 @@ python train_first.py
 
 Now, if your training config is the same as mine, it's probably going to take a while to run the first round of training. Maybe about 24 hours or more, but in the end you should end up with a folder full of checkpoint files like `epoch_1st_00195.pth` and `first_stage.pth` as well as `config.yml` which is just a copy of the config.yml file you modified in the Configs folder.
 
+### Round 2
+
 At this point, you "should" be able to run the second round of training, but there are some problems that will pop up.
 - For starters, you might need to set the `batch size` in the `config.yml` file to a minimum of 8. Anything less than that, and it might throw errors for loss values being NaN. Feel free to experiment.
-- Also, at the bottom of the `StyleTTS2/models.py` file, there's a `load_checkpoint` function that you might need to modify for round 2 training. I've added a `load_checkpoint.py` file with the modified implementation. You can just comment out the original one and copy/paste from that file. You'll probably need to switch back if you run round 1 training again.
-- Most importantly, since you're updating batch size to 8, you're now going to be using a lot more GPU memory on top of the fact that round 2 training adds more training methods that already use more memory than round 1. As a result, I ended up renting a pod in the cloud with an 80GB GPU and ran training there.
+- Also, at the bottom of the `StyleTTS2/models.py` file, there's a `load_checkpoint` function that you might need to modify for round 2 training. I've added a `load_checkpoint.py` file with the modified implementation. You can just comment out the original one and copy/paste from that file. You'll probably need to switch back if you run round 1 training again, and maybe for inference.
+- Most importantly, since you're updating batch size to 8, you're now going to be using a lot more GPU memory on top of the fact that round 2 training adds more training methods that already use more memory than round 1. As a result, I ended up renting a pod in the cloud with an 80GB NVRAM GPU and ran training there. Note, I still managed to run out of GPU memory at one point.
 - it's possible you could lower the `max_len` in config.yml to maybe 200 and lower the `batch_percentage` to 0.2 to force round 2 training to work on your local PC, but if you don't run out of memory, it's going to take a very long time to complete, and it might still fail in later epochs when other types of training start.
-- anyway, After you've run the 2nd round of training and you have an `epoch_2nd_000##.pth` file you'll be able to run inference on your trained model and finally hear what it sounds like.
+
+To start the second round of training, run the following command from a command prompt in the StyleTTS2 folder (make sure your venv is running):
+```
+python train_second.py
+```
+
+anyway, After you've run the 2nd round of training and you have an `epoch_2nd_000##.pth` file you'll be able to run inference on your trained model and finally hear what it sounds like.
 
 ## Inference
 

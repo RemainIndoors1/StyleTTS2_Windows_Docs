@@ -16,19 +16,21 @@ Requirements:
 - You'll need to install [Python](https://www.python.org/downloads/windows/) 3.7 or newer (I'm using 3.10.11)
 - You'll need to install [espeak-ng](https://github.com/espeak-ng/espeak-ng/releases) to act as a phonemizer. (regular espeak should work too, but this method uses espeak-ng)
 	- what's a phonemizer? basically, it takes text and converts it to base units that StyleTTS2 will know how to pronounce. For example, "tough" sounds like "tuff", "bough" sounds like "bow" and "bought" sounds like "bot". They're all spelled similarly, but TTS doesn't inherently know there's a difference.
-- You'll need a considerable amount of clean voice data cut up into 3-10 second wav files with a 24kHz sample rate. 
+- You'll need a considerable amount of clean voice data cut up into 3-10 second wav files with a 24kHz sample rate. (we'll cover how to convert wav files to 24kHz later)
 - You'll also need text Transcripts for all of your wav files.
 - You'll need to install the [CUDA toolkit](https://developer.nvidia.com/cuda-11-8-0-download-archive) to allow your python code to access the full power of your GPU.
 - You might also need [ffmpeg](https://www.gyan.dev/ffmpeg/builds/) to convert your wav files to the correct sample rate. This depends on what format they're currently in.
 
 First, you need to clone the [StyleTTS2](https://github.com/yl4579/StyleTTS2) repository from GitHub. I'm not going to go over how to do this, but you can find a lot of info online for how to clone a github repository if you're not sure how.
 
-Next, you'll want to add espeak-ng and ffmpeg to the Path in your environment variables in Windows. This will give your python code access to the program to use as a phonemizer, also will make converting wav files much easier.
+Next, you'll want to add espeak-ng to the Path variable in your environment variables in Windows. This will give your python code access to the program to use as a phonemizer.
+
+Also, If you need to convert your wav files to 24kHz, you'll want to add ffmpeg to the Path variable in your environment variables. This will make converting wav files much easier.
 
 [espeak-ng](https://github.com/espeak-ng/espeak-ng/releases)
 - download the msi file and install it. Windows will give warnings because it's not licensed with Microsoft, so proceed at your own risk, but you're already dealing with a lot of open source software, if you don't trust one piece of the process, this probably isn't for you.
 - On Windows 11, this installs to C:\Program Files\eSpeak NG
-- Add this folder as a new entry to the System "Path" variable in Environment Variables.
+- Add this folder as a new entry to the System "Path" variable in Environment Variables if it's not already there from installation.
 
 [ffmpeg](https://www.gyan.dev/ffmpeg/builds/) 
 - download the latest ffmpeg-git-full.7z zip file, open it and copy the contents to a new local folder on your PC (C:\ffmpeg should be easy enough)
@@ -51,7 +53,7 @@ You can verify both of those changes worked by opening a command prompt and typi
 
 ### Create or acquire a folder full of wav files
 
-This is going to be different depending on what voice you're training, so hard to go into every possible option, but in the end you'll need a folder full of 3-10 second long wav files. If you're recording your own voice, make sure you use a good microphone, try to avoid any background noise or music, and don't leave a lot of empty space before or after the speech.
+This is going to be different depending on what voice you're training, so it's hard to go into every possible option, but in the end you'll need a folder full of 2-10 second long wav files. If you're recording your own voice, make sure you use a good microphone, try to avoid any background noise or music, and don't leave a lot of empty space before or after the speech.
 
 I would probably aim for at least an hour worth of audio files (possibly more). I know that seems like a lot, but you're teaching an AI model how to talk from scratch. it doesn't really know how to speak.
 
@@ -106,7 +108,7 @@ python -m venv venv
 venv\Scripts\activate
 ```
 - you'll see `(venv)` show up to the left of your prompt, which says the Virtual Environment is started.
-	- any time you need to reopen this repository to run python commands, you need to start the Virtual Environment again.
+	- any time you need to reopen a command prompt to run python commands, you need to start the Virtual Environment again.
 - Next, you'll need to install the python dependencies for this project. So, type the following command:
 ```
 pip install -r requirements.txt
@@ -129,7 +131,7 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https
 
 - copy the `build_dataset.py` script to the base directory of your local StyleTTS2 folder
 - save your `metadata.csv` file wherever you want. Mine's in the 'StyleTTS2/Data' folder
-- change the 'Path/to/metadata.csv' at the top of the file to point to the location of your file
+- change the 'Path/to/metadata.csv' at the top of the build_dataset file to point to the location of your file
 	- keep in mind, Python uses forward slashes to navigate directories.
 - At this point, if you don't already have a command prompt open from your StyleTTS2 folder, open one and start the Virtual Environment
 - now type the following command to build your dataset:
@@ -154,7 +156,7 @@ Here are some important config settings to know:
 - **log_dir**: The folder where checkpoints and logs will be saved during training.
 - **first_stage_path**: This is the name of the final checkpoint file generated by train_first.py - train_second.py will load this checkpoint to continue training.
 - **save_freq**: This is how many epochs run between saving checkpoint files. I think it might be possible to continue training from an existing checkpoint if training gets interrupted or fails randomly, but I haven't worked that out yet. I'll update here if I do figure it out.
-- **device**: Leave this set as "cuda". if you have multiple GPUs, you could configure a specific one like "cuda:0"
+- **device**: Leave this set as "cuda". Or, if you have multiple GPUs, you could configure a specific one like "cuda:0"
 - **batch_size**: This controls how many sample files from your dataset training attempts to process at a time. Higher number means training might run faster, but it uses more GPU memory, so you can crash training or make it run crazy slow if you're using close to 100% of your GPU.
 	- Note: for the first round of training I had to use 2 as the batch size with about 1040 wav files and `max_len: 400`
 - **max_len**: (I believe) this controls the max audio length wav file training will attempt to process. You can lower this to save on GPU memory if needed, but if you go too low, you might end up with an untrained model. (200 is the lowest I've used successfully)
@@ -215,4 +217,6 @@ python inference.py
 
 If everything went as expected, you should have now run inference and generated a wav file. Congratulations! It's really not easy getting to this point, and there's so much conflicting information spread out across different places on the internet, even popular AI models struggle to give correct answers on the subject.
 
-I'm not going to go any deeper on the subject, but assuming everything above worked out for you like it did for me, you should now have a solid working training pipeline and a way to test your checkpoints. Best of luck :)
+If there's any interest, I could possibly document the process of running `train_second.py` on RunPod, but it can be stressful and costs money while the pod is running, so I don't know if I want that on my conscience where people are depending on timely answers to their problems.
+
+Anyway, best of luck, and kudos if you managed to get this far. I went through a hell of a lot of trouble to get all of that figured out. If you feel like anything I said was wrong or unclear, please feel free to point it out. I'm not a python developer, I'm not a Linux user, and I know very little about the science behind training AI models.

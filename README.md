@@ -15,7 +15,8 @@ Requirements:
 - You'll probably also want to have a fairly powerful CPU.
 - You'll need to install [Python](https://www.python.org/downloads/windows/) 3.7 or newer (I'm using 3.10.11)
 - You'll need to install [espeak-ng](https://github.com/espeak-ng/espeak-ng/releases) to act as a phonemizer. (regular espeak should work too, but this method uses espeak-ng)
-	- what's a phonemizer? basically, it takes text and converts it to base units that StyleTTS2 will know how to pronounce. For example, "tough" sounds like "tuff", "bough" sounds like "bow" and "bought" sounds like "bot". They're all spelled similarly, but TTS doesn't inherently know there's a difference.
+> [!Note]
+> What's a phonemizer? basically, it takes text and converts it to phonemes or base units that StyleTTS2 will know how to pronounce. For example, "tough" sounds like "tuff", "though" sounds like "tho" and "bought" sounds like "bot". They're all spelled similarly, but TTS doesn't inherently know there's a difference.
 - You'll need a considerable amount of clean voice data cut up into 2-10 second wav files with a 24kHz sample rate. (we'll cover how to convert wav files to 24kHz later)
 - You'll also need text Transcripts for all of your wav files.
 - You'll need to install the [CUDA toolkit](https://developer.nvidia.com/cuda-11-8-0-download-archive) to allow your python code to access the full power of your GPU.
@@ -28,12 +29,12 @@ Next, you'll want to add espeak-ng to the Path variable in your environment vari
 Also, If you need to convert your wav files to 24kHz, you'll want to add ffmpeg to the Path variable in your environment variables. This will make converting wav files much easier.
 
 [espeak-ng](https://github.com/espeak-ng/espeak-ng/releases)
-- download the msi file and install it. Windows will give warnings because it's not licensed with Microsoft, so proceed at your own risk, but you're already dealing with a lot of open source software, if you don't trust one piece of the process, this probably isn't for you.
+- Download the msi file and install it. Windows will give warnings because it's not licensed with Microsoft, so proceed at your own risk, but you're already dealing with a lot of open source software, if you don't trust one piece of the process, this probably isn't for you.
 - On Windows 11, this installs to C:\Program Files\eSpeak NG
 - Add this folder as a new entry to the System "Path" variable in Environment Variables if it's not already there from installation.
 
 [ffmpeg](https://www.gyan.dev/ffmpeg/builds/) 
-- download the latest ffmpeg-git-full.7z zip file, open it and copy the contents to a new local folder on your PC (C:\ffmpeg should be easy enough)
+- Download the latest ffmpeg-git-full.7z zip file, open it and copy the contents to a new local folder on your PC (C:\ffmpeg should be easy enough)
 - Also add this folder as a new entry to the System "Path" variable in Environment Variables.
 
 You can verify both of those changes worked by opening a command prompt and typing `espeak-ng` then pressing enter, then typing `ffmpeg` and pressing enter. You might need to type `CTRL+C` to cancel one or both of those commands, but as long as it doesn't say something like `espeak-ng is not recognized as an internal or external command, operable program or batch file.` then it should be setup and working.
@@ -42,11 +43,11 @@ You can verify both of those changes worked by opening a command prompt and typi
 - Download and install the version for your specific version of windows.
 - Annoyingly enough, you're probably going to run into some more errors later about one or more missing cudnn files, so let's try to avoid that in advance. First you'll need to download a zip file from Nvidia's website and copy some files into the bin folder of your NVIDIA GPU Computing Toolkit installation.
 	- Here's the installation instructions for installing the cuDNN Backend on Windows: https://docs.nvidia.com/deeplearning/cudnn/installation/latest/windows.html
-	- you'll need to download the zip file
-	- open the bin folder inside it and copy all of those dll files to the bin folder of your NVIDIA GPU Computing Toolkit installation.
+	- You'll need to download the zip file
+	- Open the bin folder inside it and copy all of those dll files to the bin folder of your NVIDIA GPU Computing Toolkit installation.
 	- The location will likely be `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin`
 	- There's also a possibility you'll see an error later for a missing cublas64_##.dll file - if this happens, open this bin folder again and look for a dll file named similarly like `cublas64_12.dll` (assuming you got an error for missing `cublas64_11.dll`) You can create a copy of the file that does exist and just rename it to the missing one if this happens.
-- it's also possible, depending on your motherboard and graphics card that you might need to change some settings in the BIOS to allow your OS to access the GPU. it's been a few months since I did that so unfortuantely I don't remember what I did, but you can definitely google it if you come across any errors related to your CUDA installation.
+- It's also possible, depending on your motherboard and graphics card that you might need to change some settings in the BIOS to allow your OS to access the GPU. it's been a few months since I did that so unfortuantely I don't remember what I did, but you can definitely google it if you come across any errors related to your CUDA installation.
 - With any luck, this should be all you need to get CUDA working on your PC.
 
 ## Preparing your Dataset
@@ -69,7 +70,7 @@ Assuming you have ffmpeg installed, you can accomplish that as follows:
 - Open the folder where your wav files are located.
 - Add a new folder named "converted" in that folder.
 - Click in the address bar at the top of your wavs folder, and type `cmd` then press enter to open a command prompt at that location.
-- now enter the below command in the command prompt to mass convert all of your files to 24kHz and mono:
+- Now enter the below command in the command prompt to mass convert all of your files to 24kHz and mono:
 ```
 for %f in (*.wav) do ffmpeg -i "%f" -ac 1 -ar 24000 -sample_fmt s16 "converted\%~nf.wav"
 ```
@@ -97,7 +98,7 @@ etc...
 
 ### Setup your python environment
 
-- in the folder where you cloned StyleTTS2, click on the address bar and type `cmd` then press enter to open a command prompt window at this location.
+- In the folder where you cloned StyleTTS2, click on the address bar and type `cmd` then press enter to open a command prompt window at this location.
 - Enter the following command to create a [Python Virtual Environment](https://www.geeksforgeeks.org/python/create-virtual-environment-using-venv-python/):
 ```
 python -m venv venv
@@ -107,15 +108,15 @@ python -m venv venv
 ```
 venv\Scripts\activate
 ```
-- you'll see `(venv)` show up to the left of your prompt, which says the Virtual Environment is started.
-	- any time you need to reopen a command prompt to run python commands, you need to start the Virtual Environment again.
+- You'll see `(venv)` show up to the left of your prompt, which says the Virtual Environment is started.
+	- Any time you need to reopen a command prompt to run python commands, you need to start the Virtual Environment again.
 - Next, you'll need to install the python dependencies for this project. So, type the following command:
 ```
 pip install -r requirements.txt
 ```
 - This will install all of the packages listed in the requirements.txt file which will save you a lot of headache later.
 - That will also install pytorch, which is the library that allows python to communicate with your GPU, but the default version is only installed to work with your CPU.
-- so, next run the following couple of commands to uninstall pytorch and reinstall it with the correct CUDA compatibility:
+- So, next run the following couple of commands to uninstall pytorch and reinstall it with the correct CUDA compatibility:
 ```
 pip uninstall torch torchvision torchaudio
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
@@ -129,12 +130,12 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https
 
 ### Convert metadata.csv to Training Data
 
-- copy the `build_dataset.py` script to the base directory of your local StyleTTS2 folder
-- save your `metadata.csv` file wherever you want. Mine's in the 'StyleTTS2/Data' folder
-- change the 'Path/to/metadata.csv' at the top of the build_dataset file to point to the location of your file
-	- keep in mind, Python uses forward slashes to navigate directories.
+- Copy the `build_dataset.py` script to the base directory of your local StyleTTS2 folder
+- Save your `metadata.csv` file wherever you want. Mine's in the 'StyleTTS2/Data' folder
+- Change the 'Path/to/metadata.csv' at the top of the build_dataset file to point to the location of your file
+	- Keep in mind, Python uses forward slashes to navigate directories.
 - At this point, if you don't already have a command prompt open from your StyleTTS2 folder, open one and start the Virtual Environment
-- now type the following command to build your dataset:
+- Now type the following command to build your dataset:
 ```
 python build_dataset.py
 ```
@@ -144,13 +145,14 @@ voice_0094.wav|wˌeəz ðə tˈɒɡəl wˌɒt tˈɒɡəl ɑː juː lˈʊkɪŋ f�
 voice_0052.wav|nˈəʊ nˈəʊ ʃˈeə mˌiː ðə sˈiːkɹɪts kˈʌm ˈɒn|0
 ```
 90% of the files go to train_list, and the other 10% go to val_list - also, it changes all of your texts to phonemes, which is highly recommended for training.
-- Note: you Can train on plain english text, but your TTS model will likely be limited to pronunciation for words spoken in your dataset, which kind of defeats the purpose.
+> [!Note]
+> You Can train on plain english text, but your TTS model will likely be limited to pronunciation for words spoken in your dataset, which kind of defeats the purpose. If you do train on plain text, you would need to update `tts.py` to _not_ phonemize the text input before processing it.
 
 You'll also want to make sure your 24kHz wav files are copied to a folder called `wavs` inside your `StyleTTS2\Data` folder
 
 ### Prep your Config
 
-inside the `StyleTTS2\Configs` folder, there's a config.yml file. You should open this with something like Notepad++ or if you're using an IDE, just open it in that.
+Inside the `StyleTTS2\Configs` folder, there's a config.yml file. You should open this with something like Notepad++ or if you're using an IDE, just open it in that.
 Understanding/Modifying this config file is going to be important for running training.
 Here are some important config settings to know:
 - **log_dir**: The folder where checkpoints and logs will be saved during training.
@@ -184,7 +186,7 @@ As long as everything up until this point has gone well, you should be good to s
 
 Also, since newer versions of pytorch use a "weights_only_unpickler" by default, when you try to run training, you might run into an error about weights_only being set to True/False. Your first instinct might be to try changing versions until you get something that works, but that's going to lead you into dependency hell trying to get the magic mix of versions that makes everything happy. Fortunately, there's an easy yet hacky solution to this problem.
 
-if this error pops up, open the folder at `StyleTTS2\Lib\site-packages\torch\` and find the file `serialization.py`. Open this file and find everywhere that sets the value of `weights_only` then manually set it to False. Save the file and as long as you did it correctly, that error should be fixed. (I believe you can pass weights_only=False into any calls to that class, but it's easier in my opinion just to force it to False.)
+If this error pops up, open the folder at `StyleTTS2\Lib\site-packages\torch\` and find the file `serialization.py`. Open this file and find everywhere that sets the value of `weights_only` then manually set it to False. Save the file and as long as you did it correctly, that error should be fixed. (I believe you can pass weights_only=False into any calls to that class, but it's easier in my opinion just to force it to False.)
 
 To start the first round of training, run the following command from a command prompt in the StyleTTS2 folder (make sure your venv is running):
 ```
@@ -199,14 +201,14 @@ At this point, you "should" be able to run the second round of training, but the
 - For starters, you might need to set the `batch size` in the `config.yml` file to a minimum of 8. Anything less than that, and it might throw errors for loss values being NaN. Feel free to experiment.
 - Also, at the bottom of the `StyleTTS2/models.py` file, there's a `load_checkpoint` function that you might need to modify for round 2 training. I've added a `load_checkpoint.py` file with the modified implementation. You can just comment out the original one and copy/paste from that file. You'll probably need to switch back if you run round 1 training again, and maybe for inference.
 - Most importantly, since you're updating batch size to 8, you're now going to be using a lot more GPU memory on top of the fact that round 2 training adds more training methods that already use more memory than round 1. As a result, I ended up renting a pod in the cloud with an 80GB NVRAM GPU and ran training there. Note, I still managed to run out of GPU memory at one point.
-- it's possible you could lower the `max_len` in config.yml to maybe 200 and lower the `batch_percentage` to 0.2 to force round 2 training to work on your local PC, but if you don't run out of memory, it's going to take a very long time to complete, and it might still fail in later epochs when other types of training start.
+- It's possible you could lower the `max_len` in config.yml to maybe 200 and lower the `batch_percentage` to 0.2 to force round 2 training to work on your local PC, but if you don't run out of memory, it's going to take a very long time to complete, and it might still fail in later epochs when other types of training start.
 
 To start the second round of training, run the following command from a command prompt in the StyleTTS2 folder (make sure your venv is running):
 ```
 python train_second.py
 ```
 
-anyway, After you've run the 2nd round of training and you have an `epoch_2nd_000##.pth` file you'll be able to run inference on your trained model and finally hear what it sounds like.
+Anyway, After you've run the 2nd round of training and you have an `epoch_2nd_000##.pth` file you'll be able to run inference on your trained model and finally hear what it sounds like.
 
 ## Inference
 
@@ -216,13 +218,14 @@ Important point: It's good to understand the difference between the LibriTTS and
 
 I'm going to include a basic `inference.py` script with `tts.py` you can use to test your models as long as you followed the instructions above. Important notes:
 - You should copy both of those files into your base StyleTTS2 folder because they rely on other files in the StyleTTS2 project.
-- you'll need to modify the constants at the top of `inference.py` to match your file structure.
+- You'll need to modify the constants at the top of `inference.py` to match your file structure.
 - Make sure you use the same config.yml file that you used during training.
 - DEFAULT_TARGET_VOICE_PATH: this is the sample file you want StyleTTS2 to base your generated voice's style on.
-	- Important note about StyleTTS2: it requires you to provide a sample wav file during inference to use as a style reference. This can affect the speed, tone and other characteristics about the resulting voice. You can switch between files to change the Style and speed of your TTS voice.
+> [!Note]
+> StyleTTS2 requires you to provide a sample wav file during inference to use as a style reference. This can affect the speed, tone and other characteristics about the resulting voice. You can switch between files to change the Style and speed of your TTS voice.
 - You may run into a few dependencies during inference that aren't already installed in your project because we didn't use them during training. The imports at the top of tts.py are going to be the most likely things missing, so just `pip install packagename` if any errors pop up.
 
-once you have everything copied to your StyleTTS2 root directory and you've updated the inference.py script, just run the following command:
+Once you have everything copied to your StyleTTS2 root directory and you've updated the inference.py script, just run the following command:
 ```
 python inference.py
 ```

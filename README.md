@@ -10,6 +10,9 @@ If you're planning on training a StyleTTS2 model from scratch, you've got some w
 
 ## Getting Started
 
+> [!WARNING]
+> I was documenting this while training a model from scratch and didn't realize until afterward that, while the model sounds exactly like the voice it was trained on, it currently doesn't respect punctuation. As such if you have ellipsis or commas in your training data or other punctuation that might cause notable pauses in speech, the resulting Text To Speech might end up with weird phrasing and pauses while ignoring pauses in the sentences you try to run inference on. I have an idea of how to fix this, but the documentation below doesn't reflect that yet.
+
 Requirements:
 - You're going to need an Nvidia GPU with a lot of VRAM. I'm using a 3090 with 24GB VRAM, and it honestly still isn't enough.
 - You'll probably also want to have a fairly powerful CPU.
